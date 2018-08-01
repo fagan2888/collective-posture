@@ -14,9 +14,6 @@ if exist('smoothed_data.mat','file') == 2
 	return
 end
 
-% load all images and subsample to keep them all in memory
-
-load('combined_data_interleaved.mat')
 
 clear smoothed_data
 smoothed_data.images = zeros(1e6,21,31);
@@ -25,8 +22,7 @@ smoothed_data.geno_id = NaN(1e6,1);
 
 
 idx = 1;
-all_files = dir('all_images*.mat');
-
+all_files = dir('*.ego');
 
 
 
@@ -34,12 +30,12 @@ for i = 1:length(all_files)
 	disp(i)
 
 	clear all_images row_numbers
-	load((all_files(i).name));
+	load((all_files(i).name),'-mat');
 
-	n_flies = max(all_flies(row_numbers));
+	n_flies = max(fly_id);
 
 	for j = 1:n_flies
-		this_fly = all_flies(row_numbers) == j;
+		this_fly = fly_id == j;
 
 		this_fly_images = all_images(this_fly,:,:);
 		step_size = floor(size(this_fly_images,1)/nchunks);

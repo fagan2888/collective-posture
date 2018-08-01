@@ -12,8 +12,6 @@
 
 ssdata = smooth_images(10);
 
-% load the giant matrix
-load('combined_data_interleaved.mat')
 
 sz = size(ssdata.images);
 ssdata.images = reshape(ssdata.images,sz(1),sz(2)*sz(3));
@@ -46,6 +44,8 @@ prettyFig();
 box off
 
 
+return
+
 
 R = mctsne(ssdata.images');
 
@@ -55,9 +55,16 @@ labels = ssdata.geno_id;
 
 c = lines(max(labels)+1);
 
-plot(R(1,:),R(2,:),'.','Color',[.5 .5 .5])
+for i = 1:max(labels)
+	cla
+	plot(R(1,:),R(2,:),'.','Color',[.5 .5 .5])
 
-for i = 2%max(labels)
 	plot(R(1,labels==i),R(2,labels==i),'.','Color',c(i,:),'MarkerSize',24)
+	pause(2)
 end
+
+
+
+
+
 

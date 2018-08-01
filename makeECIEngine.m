@@ -107,12 +107,6 @@ parfor j = 1:n_frames
 		all_images(j,k,:,:) = XX(1:options.sub_sample_ratio:end,1:options.sub_sample_ratio:end);
 		n_neighbours(j,k) = length(other_y);
 
-
-		if k == 1
-			all_images(j,k,:,:) = 100;
-		end
-	
-
 	end
 
 end

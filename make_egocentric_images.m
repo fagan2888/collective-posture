@@ -61,7 +61,7 @@ n_flies = 20;
 
 
 
-for i = 5
+for i = 1:5
 
 	disp([options.trx_folder filesep geno_names{i}])
 	load([options.trx_folder filesep geno_names{i}])

@@ -20,9 +20,13 @@
 % Contact me at http://srinivas.gs/contact/
 % 
 
-function [idx, labels] = exploreTSNE(R,labels,X)
+function exploreTSNE(R,ssdata)
+
+global all_trx
 
 options.trx_folder = '~/Desktop/fly-trx';
+labels = ssdata.geno_id;
+X = ssdata.images;
 
 % make a colour scheme
 if length(unique(labels)) < 5
@@ -47,7 +51,6 @@ handles.reduced_data = [];
 prettyFig('font_units','points');
 
 
-editon = 0; % this C a mode selector b/w editing and looking
 
 % plot the clusters
 plot(handles.ax(1),R(1,:),R(2,:),'.','Color',[.5 .5 .5])
@@ -63,15 +66,6 @@ end
 geno_names = dir([options.trx_folder filesep '*.mat']);
 geno_names = {geno_names.name};
 
-% pre-load all the trx
-trx = struct;
-all_trx = struct;
-disp('Loading trx...')
-for i = 1:length(geno_names)
-    textbar(i,length(geno_names))
-    load([options.trx_folder filesep geno_names{i}],'trx')
-    all_trx(i).trx = trx;
-end
 
 
 uiwait(handles.main_fig);
@@ -103,11 +97,20 @@ uiwait(handles.main_fig);
             x = vertcat(trx.x_mm);
             y = vertcat(trx.y_mm);
 
+            this_frame = ssdata.frame_id(cp);
+            a = max(this_frame-1e3,1);
+            z = min(this_frame+1e3,length(x));
+
             cla(handles.ax(3))
             cc = lines;
-            for j = 1:3
-                plot(handles.ax(3),x(j,:),y(j,:),'.','Color',cc(j,:))
+
+            for j = 1:size(x,1)
+                plot(handles.ax(3),x(j,a:z),y(j,a:z),'.','Color',[.5 .5 .5])
             end
+
+            j = ssdata.fly_id(cp);
+            plot(handles.ax(3),x(j,a:z),y(j,a:z),'r.','MarkerSize',24)
+
 
 
         end

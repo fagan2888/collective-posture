@@ -14,10 +14,9 @@ ssdata = smooth_images(10);
 
 
 sz = size(ssdata.images);
-images = ssdata.images;
-ssdata.images = reshape(ssdata.images,sz(1),sz(2)*sz(3));
+reshaped_images = reshape(ssdata.images,sz(1),sz(2)*sz(3));
 
-[coeff,score,latent,tsquared,explained,mu] = pca(ssdata.images(:,:,:));
+[coeff,score,latent,tsquared,explained,mu] = pca(reshaped_images);
 
 
 figure('outerposition',[0 0 800 801],'PaperUnits','points','PaperSize',[800 801]); hold on
@@ -47,12 +46,31 @@ box off
 
 
 
-R = mctsne(ssdata.images');
+R = mctsne(reshaped_images');
+
+
+
+% pre-load all the trx
+options.trx_folder = '~/Desktop/fly-trx';
+geno_names = dir([options.trx_folder filesep '*.mat']);
+geno_names = {geno_names.name};
+
+
+global all_trx
+trx = struct;
+all_trx = struct;
+disp('Loading trx...')
+for i = 1:length(geno_names)
+    textbar(i,length(geno_names))
+    load([options.trx_folder filesep geno_names{i}],'trx')
+    all_trx(i).trx = trx;
+end
+
 
 
 % launch t-SNE explorer
 
-exploreTSNE(R,ssdata.geno_id,images)
+exploreTSNE(R,ssdata)
 
 
 

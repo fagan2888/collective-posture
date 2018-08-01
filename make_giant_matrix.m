@@ -17,6 +17,8 @@ all_flies = NaN(N,1);
 all_x = NaN(N,1);
 all_y = NaN(N,1);
 all_theta = NaN(N,1);
+all_sex = NaN(N,1);
+all_frames = NaN(N,1);
 
 
 idx = 1;
@@ -25,22 +27,55 @@ for i = 1:length(geno_names)
 	disp(geno_names{i})
 	clear trx
 	load([root_name filesep geno_names{i}])
+	ok_flies = true(length(trx),1);
+	for j = 2:length(trx)
+		if length(trx(j).x_mm) ~= length(trx(1).x_mm)
+			ok_flies(j) = false;
+		end
+	end
+	trx = trx(ok_flies);
+	disp(['This file has ' mat2str(length(trx)) ' flies of data'])
 
-	for j = 1:length(trx)
-		data_size = length(trx(j).x);
-		all_x(idx:idx-1+data_size) = trx(j).x;
-		all_y(idx:idx-1+data_size) = trx(j).y;
-		all_theta(idx:idx-1+data_size) = trx(j).theta;
-		all_flies(idx:idx-1+data_size) = j;
-		all_geno(idx:idx-1+data_size) = i;
-
-		idx = idx + data_size;
-
+	if length(trx) < 10
+		continue
 	end
 
+
+	this_x = vectorise(vertcat(trx.x_mm));
+	this_y = vectorise(vertcat(trx.y_mm));
+	this_theta = vectorise(vertcat(trx.theta));
+
+	this_flies = (repmat(1:length(trx),1,length(trx(1).x_mm)));
+
+	data_size = length(this_x);
+	
+	all_x(idx:idx-1+data_size) = this_x;
+	all_y(idx:idx-1+data_size) = this_y;
+	all_theta(idx:idx-1+data_size) = this_theta;
+
+	all_flies(idx:idx-1+data_size) = this_flies;
+	all_geno(idx:idx-1+data_size) = i;
+
+	this_sex = NaN(length(trx),1);
+	for j = 1:length(trx)
+		if strcmp(trx(j).sex{1},'M')
+			this_sex(j) = 1;
+		else
+			this_sex(j) = 0;
+		end
+	end
+
+	this_sex = (repmat(this_sex,1,length(trx(1).x_mm)));
+
+
+	all_sex(idx:idx-1+data_size) = this_sex;
+	all_frames(idx:idx-1+data_size) = vectorise((repmat(1:length(trx(1).x_mm),length(trx),1)));
+
+
+	idx = idx + data_size;
 
 end
 
 
 
-save('combined_data.mat','all_x','all_x','all_geno','all_flies','all_theta','geno_names')
+save('combined_data_interleaved.mat','all_x','all_y','all_geno','all_flies','all_theta','geno_names','all_frames','all_sex')

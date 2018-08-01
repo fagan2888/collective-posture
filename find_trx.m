@@ -1,6 +1,6 @@
 % find all *.mat file 
 
-root_dir = '~/Desktop/fly-movies';
+root_dir = '/Volumes/Angela/all_flies/';
 allfiles = getAllFiles(root_dir);
 
 for i = 1:length(allfiles)

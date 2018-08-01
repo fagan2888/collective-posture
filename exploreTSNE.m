@@ -20,13 +20,10 @@
 % Contact me at http://srinivas.gs/contact/
 % 
 
-function exploreTSNE(R,ssdata)
+function exploreTSNE(R,labels,X)
 
 global all_trx
 
-options.trx_folder = '~/Desktop/fly-trx';
-labels = ssdata.geno_id;
-X = ssdata.images;
 
 % make a colour scheme
 if length(unique(labels)) < 5
@@ -63,10 +60,6 @@ for i = 1:max(labels)
 end
 
 
-geno_names = dir([options.trx_folder filesep '*.mat']);
-geno_names = {geno_names.name};
-
-
 
 uiwait(handles.main_fig);
 
@@ -97,7 +90,7 @@ uiwait(handles.main_fig);
             x = vertcat(trx.x_mm);
             y = vertcat(trx.y_mm);
 
-            this_frame = ssdata.frame_id(cp);
+            this_frame = frame_id(cp);
             a = max(this_frame-1e3,1);
             z = min(this_frame+1e3,length(x));
 
@@ -108,7 +101,7 @@ uiwait(handles.main_fig);
                 plot(handles.ax(3),x(j,a:z),y(j,a:z),'.','Color',[.5 .5 .5])
             end
 
-            j = ssdata.fly_id(cp);
+            j = fly_id(cp);
             plot(handles.ax(3),x(j,a:z),y(j,a:z),'r.','MarkerSize',24)
 
 

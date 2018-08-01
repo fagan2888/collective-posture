@@ -1,7 +1,7 @@
 % this function actually makes the images
 % from the x and y and theta info
 
-function makeECIEngine(all_x,all_y,all_theta,geno_name,options)
+function binRTheta(all_R,all_theta,geno_name,options)
 
 
 R_bin_edges = linspace(0,options.r_max,options.r_n_bins*options.sub_sample_ratio+1);
@@ -25,57 +25,39 @@ X = zeros(length(R_bin_edges)+size(GK,1),length(theta_bin_edges)+size(GK,2));
 % define rotation matrix
 R = @(theta) [cos(theta) -sin(theta); sin(theta) cos(theta)];
 
-n_flies = size(all_x,1);
-n_frames = size(all_x,2);
+n_flies = size(all_R,2);
+n_frames = size(all_R,1);
 
 
-all_images = zeros(n_frames,n_flies,options.r_n_bins+1,options.theta_n_bins+1);
-n_neighbours = zeros(n_frames,n_flies);
+look_at_these_frames = 1:options.t_bin_step:(n_frames - options.t_bin_size-1);
+
+n_images = length(look_at_these_frames);
+
+all_images = zeros(n_flies,n_images,options.r_n_bins+1,options.theta_n_bins+1);
+n_neighbours = zeros(n_images,n_flies);
 
 
-
-parfor j = 1:n_frames
-
-
-	for k = 1:n_flies
-
-		% find the positions of all other flies
-		other_x = all_x(:,j);
-		other_y = all_y(:,j);
-
-		% coordinate transform -- remove origin
-		other_x = other_x - all_x(k,j);
-		other_y = other_y - all_y(k,j);
-
-		% find distances to all other flies in frame 
-		D = sqrt(other_x.^2 + other_y.^2);
-		rm_this = D == 0 | D > options.r_max;
-
-		other_x(rm_this) = [];
-		other_y(rm_this) = [];
-
-		if isempty(other_y)
-			continue
-		end
-
-		% coordinate transform -- rotate axes
-		temp = R(-all_theta(k,j))*[other_x other_y]';
+for i = 1:n_flies
 
 
-		other_x = temp(1,:);
-		other_y = temp(2,:);
+	textbar(i,n_flies)
 
-		% convert to polar
-		[theta,rho] = cart2pol(other_x,other_y);
-		theta = mod(theta,2*pi);
+	for j = 1:n_images
 
 
-		% discretize and put into matrix
-		% (this step also blurs)
+		frame = look_at_these_frames(j);
+
+		this_r = vectorise(squeeze(all_R(frame:frame+options.t_bin_size,i,:)));
+		this_theta = vectorise(squeeze(all_theta(frame:frame+options.t_bin_size,i,:)));
+
+		rm_this = this_r > options.r_max;
+		this_r(rm_this) = [];
+		this_theta(rm_this) = [];
+		this_theta = mod(this_theta,2*pi);
 
 		% discretize rho and theta
-		rho = floor((rho/options.r_max)*length(R_bin_edges-1)) + GK_width_r;
-		theta = floor((theta/(2*pi))*length(theta_bin_edges-1)) + GK_width_theta;
+		rho = floor((this_r/options.r_max)*length(R_bin_edges-1)) + GK_width_r;
+		theta = floor((this_theta/(2*pi))*length(theta_bin_edges-1)) + GK_width_theta;
 
 		% drop Gaussians where there should be points
 
@@ -93,7 +75,7 @@ parfor j = 1:n_frames
 		% cut in R dimension, wrap in theta dimension
 		XX = X;
 
-		XX=XX(GK_width_r+1:end-GK_width_r-1,:);
+		XX = XX(GK_width_r+1:end-GK_width_r-1,:);
 		XX_theta_left = XX(:,1:GK_width_theta+1);
 		XX_theta_right = XX(:,end-GK_width_theta:end);
 		XX = XX(:,GK_width_theta+2:end-GK_width_theta);
@@ -102,18 +84,20 @@ parfor j = 1:n_frames
 
 
 		% subsample
+		all_images(i,j,:,:) = XX(1:options.sub_sample_ratio:end,1:options.sub_sample_ratio:end);
+		n_neighbours(i,j) = length(rho);
 
-		all_images(j,k,:,:) = XX(1:options.sub_sample_ratio:end,1:options.sub_sample_ratio:end);
-		n_neighbours(j,k) = length(other_y);
 
 	end
 
 end
 
+% save this
+
 sz = size(all_images);
 all_images =  reshape(all_images,sz(1)*sz(2),sz(3),sz(4));
-sz = size(n_neighbours);
-n_neighbours = reshape(n_neighbours,sz(1)*sz(2),1);
-fly_id = vectorise(repmat(1:n_flies,n_frames,1));
+fly_id = vectorise(repmat(1:n_flies,1,n_images));
+frame_ids = vectorise(repmat(look_at_these_frames,n_flies,1));
 
-save([geno_name,'.ego'],'all_images','n_neighbours','fly_id')
+save([geno_name,'.ego'],'all_images','frame_ids','fly_id')
+

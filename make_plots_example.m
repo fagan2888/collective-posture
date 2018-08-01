@@ -4,9 +4,6 @@
 % 3. images (r-theta) averaged over all frames for all flies
 
 
-% first combine all images file and subsample for 
-% easy access
-ssdata = smooth_images(10);
 
 
 c = lines;
@@ -17,7 +14,7 @@ geno_names = dir([options.trx_folder filesep '*.mat']);
 geno_names = {geno_names.name};
 
 
-for i = 1:max(ssdata.geno_id)
+for i = 1:length(geno_names)
 
 	load([options.trx_folder filesep geno_names{i}])
 	x = vertcat(trx.x_mm);
@@ -25,22 +22,38 @@ for i = 1:max(ssdata.geno_id)
 	all_theta = vertcat(trx.theta);
 
 
-	figure('outerposition',[0 0 1500 500],'PaperUnits','points','PaperSize',[1500 500]); hold on
-	subplot(1,3,1); hold on
+	figure('outerposition',[0 0 701 700],'PaperUnits','points','PaperSize',[701 700]); hold on
+	subplot(2,2,1); hold on
 
 	for j = 1:3
 		plot(x(j,:),y(j,:),'.','Color',c(j,:))
 	end
-
 	axis square
 	title(geno_names{i}(1:20),'interpreter','none')
 	axis off
 	set(gca,'XLim',[-60 60],'YLim',[-60 60])
 
+
+	% now show these in egocentric co-ordinats
+	load([geno_names{i} '.rtheta'],'-mat')
+	
+	subplot(2,2,2); 
+	n_frames = 300;
+	polarplot(squeeze(T(1:n_frames,1,:)),squeeze(R(1:n_frames,1,:)),'.','Color',c(1,:))
+	ax = gca;
+	hold on
+	for j = 2:3
+		polarplot(squeeze(T(1:n_frames,j,:)),squeeze(R(1:n_frames,j,:)),'.','Color',c(j,:))
+	end
+	ax.RLim = [0 40];
+
+
+	load([geno_names{i} '.ego'],'-mat')
+
 	% show the average image for the first fly
-	subplot(1,3,2); hold on
-	idx = ssdata.fly_id==1 & ssdata.geno_id == i;
-	temp = squeeze(mean(ssdata.images(idx,:,:)));
+	subplot(2,2,3); hold on
+	idx = fly_id==1;
+	temp = squeeze(mean(all_images(idx,:,:),1));
 	imagesc(temp)
 	xlabel('\Theta')
  	ylabel('R (mm)')
@@ -49,9 +62,8 @@ for i = 1:max(ssdata.geno_id)
  	title('One fly')
 
 	% show the average image for the all flies
-	subplot(1,3,3); hold on
-	idx = ssdata.geno_id==i;
-	temp = squeeze(mean(ssdata.images(idx,:,:)));
+	subplot(2,2,4); hold on
+	temp = squeeze(mean(all_images,1));
 	imagesc(temp)
 	xlabel('\Theta')
  	ylabel('R (mm)')

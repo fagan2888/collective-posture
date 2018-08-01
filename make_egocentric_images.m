@@ -7,12 +7,14 @@ function make_egocentric_images(varargin)
 
 % options and defaults
 options.r_max = 20; % mm
-options.sub_sample_ratio = 10;
-options.r_n_bins = 20;
-options.theta_n_bins = 20;
+options.sub_sample_ratio = 5;
+options.r_n_bins = 40;
+options.theta_n_bins = 40;
 options.sigma_r = 5; % in units of high-res matrix
 options.sigma_theta = 5;
 options.trx_folder = '~/Desktop/fly-trx';
+options.t_bin_size = 5000; % frames
+options.t_bin_step = 5000; % frames
 
 if nargout && ~nargin 
 	varargout{1} = options;
@@ -49,16 +51,31 @@ geno_names = dir([options.trx_folder filesep '*.mat']);
 geno_names = {geno_names.name};
 
 
-for i = 5:10
+for i = 1:length(geno_names)
 
 	disp([options.trx_folder filesep geno_names{i}])
-	load([options.trx_folder filesep geno_names{i}])
-	x = vertcat(trx.x_mm);
-	y = vertcat(trx.y_mm);
-	all_theta = vertcat(trx.theta);
 
+	if exist([geno_names{i} '.rtheta'],'file') ~= 2
 
-	makeECIEngine(x,y,all_theta,geno_names{i},options);
+		
+		load([options.trx_folder filesep geno_names{i}])
+		
+		traj_lengths = cellfun(@length,{trx.x});
+		rm_this = traj_lengths ~= mode(traj_lengths);
+
+		trx(rm_this) = [];
+		x = vertcat(trx.x_mm);
+		y = vertcat(trx.y_mm);
+		all_theta = vertcat(trx.theta);
+
+		makeRThetaMatrix(x,y,all_theta,geno_names{i},options);
+	else
+		disp('R-theta representation exists. loading that...')
+		load([geno_names{i} '.rtheta'],'-mat')
+	end
+
+	binRTheta(R,T,geno_names{i},options);
+
 end
 
 

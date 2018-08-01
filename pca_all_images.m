@@ -7,14 +7,29 @@
 % to compute the weights of each image
 
 
-% first combine all images file and subsample for 
-% easy access
+% load all images into one matrix
+all_files = dir('*.ego');
 
-ssdata = smooth_images(10);
+load(all_files(1).name,'-mat')
+images = all_images;
+all_fly_id = fly_id;
+all_frames = frame_ids;
+all_geno = 0*(1:length(all_fly_id)) + 1;
+all_geno = all_geno(:);
+
+for i = 2:length(all_files)
+	load(all_files(i).name,'-mat')
+
+	images = vertcat(images, all_images);
+	all_fly_id = vertcat(all_fly_id,fly_id);
+	all_frames = vertcat(all_frames,frame_ids);
+	all_geno = vertcat(all_geno,ones(length(fly_id),1)*i);
+end
 
 
-sz = size(ssdata.images);
-reshaped_images = reshape(ssdata.images,sz(1),sz(2)*sz(3));
+
+sz = size(images);
+reshaped_images = reshape(images,sz(1),sz(2)*sz(3));
 
 [coeff,score,latent,tsquared,explained,mu] = pca(reshaped_images);
 
@@ -43,11 +58,29 @@ prettyFig();
 
 box off
 
+% t-SNE the top 200 modes
+X = score(:,1:200);
+
+
+R = mctsne(X');
+
+% plot and color by genotype
+figure('outerposition',[0 0 600 600],'PaperUnits','points','PaperSize',[600 600]); hold on
+labels = all_geno;
+
+c = lines(max(labels)+1);
+
+for i = 1:max(labels)
+	cla
+	plot(R(1,:),R(2,:),'.','Color',[.5 .5 .5])
+
+	plot(R(1,labels==i),R(2,labels==i),'.','Color',c(i,:),'MarkerSize',24)
+	pause(2)
+end
 
 
 
-R = mctsne(reshaped_images');
-
+return
 
 
 % pre-load all the trx
@@ -69,8 +102,7 @@ end
 
 
 % launch t-SNE explorer
-
-exploreTSNE(R,ssdata)
+exploreTSNE(R,all_geno,images)
 
 
 
@@ -90,19 +122,6 @@ exploreTSNE(R,ssdata)
 
 
 
-% % plot and color by genotype
-% figure('outerposition',[0 0 600 600],'PaperUnits','points','PaperSize',[600 600]); hold on
-% labels = ssdata.geno_id;
-
-% c = lines(max(labels)+1);
-
-% for i = 1:max(labels)
-% 	cla
-% 	plot(R(1,:),R(2,:),'.','Color',[.5 .5 .5])
-
-% 	plot(R(1,labels==i),R(2,labels==i),'.','Color',c(i,:),'MarkerSize',24)
-% 	pause(2)
-% end
 
 return
 

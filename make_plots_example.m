@@ -1,26 +1,35 @@
 % this script makes a figure for each gneotype that shows:
 % 1. some example trajectories
-% 2. 2 images (r-theta) averaged over all frames for 2 flies
+% 2. 2 images (r-theta) averaged over all frames for 1 fly
 % 3. images (r-theta) averaged over all frames for all flies
 
 
 % first combine all images file and subsample for 
 % easy access
-ssdata = subsample_images();
+ssdata = smooth_images(10);
 
-% load the giant matrix
-load('combined_data_interleaved.mat')
 
 c = lines;
 
+options.trx_folder = '~/Desktop/fly-trx';
 
-for i = 1:max(all_geno(ssdata.row_numbers))
+geno_names = dir([options.trx_folder filesep '*.mat']);
+geno_names = {geno_names.name};
+
+
+for i = 1:max(ssdata.geno_id)
+
+	load([options.trx_folder filesep geno_names{i}])
+	x = vertcat(trx.x_mm);
+	y = vertcat(trx.y_mm);
+	all_theta = vertcat(trx.theta);
+
 
 	figure('outerposition',[0 0 1500 500],'PaperUnits','points','PaperSize',[1500 500]); hold on
 	subplot(1,3,1); hold on
 
 	for j = 1:3
-		plot(all_x(all_geno==i & all_flies == j),all_y(all_geno==i & all_flies == j),'.','Color',c(j,:))
+		plot(x(j,:),y(j,:),'.','Color',c(j,:))
 	end
 
 	axis square
@@ -30,7 +39,7 @@ for i = 1:max(all_geno(ssdata.row_numbers))
 
 	% show the average image for the first fly
 	subplot(1,3,2); hold on
-	idx = all_geno(ssdata.row_numbers)==i & all_flies(ssdata.row_numbers) == 1;
+	idx = ssdata.fly_id==1 & ssdata.geno_id == i;
 	temp = squeeze(mean(ssdata.images(idx,:,:)));
 	imagesc(temp)
 	xlabel('\Theta')
@@ -41,7 +50,7 @@ for i = 1:max(all_geno(ssdata.row_numbers))
 
 	% show the average image for the all flies
 	subplot(1,3,3); hold on
-	idx = all_geno(ssdata.row_numbers)==i;
+	idx = ssdata.geno_id==i;
 	temp = squeeze(mean(ssdata.images(idx,:,:)));
 	imagesc(temp)
 	xlabel('\Theta')
@@ -51,6 +60,8 @@ for i = 1:max(all_geno(ssdata.row_numbers))
  	title('All flies')
 
 	prettyFig();
+
+	drawnow
 	
 
 end

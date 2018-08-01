@@ -5,18 +5,13 @@
 
 function make_egocentric_images(varargin)
 
-% get options from dependencies 
-options = getOptionsFromDeps(mfilename);
-
 % options and defaults
-options.use_parallel = true;
-options.r_max = 40; % mm
+options.r_max = 20; % mm
 options.sub_sample_ratio = 10;
 options.r_n_bins = 20;
-options.theta_n_bins = 30;
+options.theta_n_bins = 20;
 options.sigma_r = 5; % in units of high-res matrix
 options.sigma_theta = 5;
-options.search_window = 30; % should be larger than the # of flies
 options.trx_folder = '~/Desktop/fly-trx';
 
 if nargout && ~nargin 
@@ -53,15 +48,8 @@ end
 geno_names = dir([options.trx_folder filesep '*.mat']);
 geno_names = {geno_names.name};
 
-% make placeholders for variables
-x = zeros(20,20e5);
-y = zeros(20,20e5);
-all_theta = zeros(20,20e5);
-n_flies = 20;
 
-
-
-for i = 1:5
+for i = 5:10
 
 	disp([options.trx_folder filesep geno_names{i}])
 	load([options.trx_folder filesep geno_names{i}])

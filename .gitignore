@@ -2,4 +2,6 @@
 *Icon*
 *.sublime-workspace
 *.mat
-
+*.ego
+*.fig
+*.eps

@@ -68,6 +68,8 @@ R = mctsne(X');
 figure('outerposition',[0 0 600 600],'PaperUnits','points','PaperSize',[600 600]); hold on
 labels = all_geno;
 
+plot(R(1,:),R(2,:),'.','Color',[.5 .5 .5])
+
 c = lines(max(labels)+1);
 
 for i = 1:max(labels)
@@ -81,6 +83,10 @@ end
 
 
 return
+
+
+% estimate a density by convolving with gaussians 
+[N,Xedges,Yedges] = histcounts2(R(1,:),R(2,:),1000);
 
 
 % pre-load all the trx

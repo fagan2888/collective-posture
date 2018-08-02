@@ -15,6 +15,7 @@ geno_names = {geno_names.name};
 
 
 geno_idx = 2;
+body_size = 2;
 
 
 load([options.trx_folder filesep geno_names{geno_idx}])
@@ -47,6 +48,7 @@ set(gca,'XLim',[-60 60],'YLim',[-60 60])
 
 load([geno_names{geno_idx} '.ego'],'-mat')
 
+
 % show the average image for the first fly
 
 idx = fly_id==1;
@@ -78,7 +80,8 @@ bin_step = 10;
 
 % show a movie of the fly in
 % egocentric co-ordinats
-load([geno_names{i} '.rtheta'],'-mat')
+load([geno_names{geno_idx} '.rtheta'],'-mat')
+R = R/body_size;
 
 axes(ax(2))
 h = polarplot(vectorise(squeeze(T(1:bin_size,1,:))),vectorise(squeeze(R(1:bin_size,1,:))),'k.','MarkerSize',16);
@@ -88,7 +91,7 @@ ax.RLim = [0 20];
 
 prettyFig();
 
-pause(5)
+pause(7)
 
 for i = 1:bin_step:length(T)-bin_size+10
 	h.ThetaData = vectorise(squeeze(T(i:i+bin_size,1,:)));

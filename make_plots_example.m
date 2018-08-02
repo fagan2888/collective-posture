@@ -14,16 +14,16 @@ geno_names = dir([options.trx_folder filesep '*.mat']);
 geno_names = {geno_names.name};
 
 
-i = 5;
+geno_idx = 2;
 
 
-load([options.trx_folder filesep geno_names{i}])
+load([options.trx_folder filesep geno_names{geno_idx}])
 x = vertcat(trx.x_mm);
 y = vertcat(trx.y_mm);
 all_theta = vertcat(trx.theta);
 
 
-figure('outerposition',[0 0 1560 400],'PaperUnits','points','PaperSize',[1560 400]); hold on
+figure('outerposition',[0 300 1560 400],'PaperUnits','points','PaperSize',[1560 400]); hold on
 for i = 4:-1:1
 	ax(i) = subplot(1,4,i);
 	if i ~= 2
@@ -31,19 +31,21 @@ for i = 4:-1:1
 	end
 end
 
+drawnow
+
 
 for j = 1:3
 	plot(x(j,:),y(j,:),'.','Color',c(j,:))
 end
 axis square
-title(geno_names{i}(1:20),'interpreter','none')
+title(geno_names{geno_idx}(1:20),'interpreter','none')
 axis off
 set(gca,'XLim',[-60 60],'YLim',[-60 60])
 
 
 
 
-load([geno_names{i} '.ego'],'-mat')
+load([geno_names{geno_idx} '.ego'],'-mat')
 
 % show the average image for the first fly
 
@@ -51,17 +53,19 @@ idx = fly_id==1;
 temp = squeeze(mean(all_images(idx,:,:),1));
 imagesc(ax(3),temp)
 xlabel(ax(3),'\Theta')
-ylabel(ax(3),'R (norm)')
-set(ax(3),'XTick',[0, 7.5, 15, 22.5,30], 'XTickLabel',{'0','\pi/2','\pi','3* \pi/2','2*\pi'})
+ylabel(ax(3),'R (a.u.)')
+
+set(ax(3),'XTick',linspace(1,size(temp,2),5), 'XTickLabel',{'0','\pi/2','\pi','3* \pi/2','2*\pi'})
 axis(ax(3),'tight')
 title(ax(3),'One fly')
+
 
 % show the average image for the all flies
 temp = squeeze(mean(all_images,1));
 imagesc(ax(4),temp)
 xlabel(ax(4),'\Theta')
-ylabel(ax(4),'R (norm)')
-set(ax(4),'XTick',[0, 7.5, 15, 22.5,30], 'XTickLabel',{'0','\pi/2','\pi','3* \pi/2','2*\pi'})
+ylabel(ax(4),'R (a.u.)')
+set(ax(4),'XTick',linspace(1,size(temp,2),5), 'XTickLabel',{'0','\pi/2','\pi','3* \pi/2','2*\pi'})
 axis(ax(4),'tight')
 title(ax(4),'All flies')
 
@@ -83,6 +87,8 @@ ax = gca;
 ax.RLim = [0 20];
 
 prettyFig();
+
+pause(5)
 
 for i = 1:bin_step:length(T)-bin_size+10
 	h.ThetaData = vectorise(squeeze(T(i:i+bin_size,1,:)));

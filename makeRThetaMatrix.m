@@ -52,4 +52,21 @@ parfor j = 1:n_frames
 
 end
 
+
+% make sure there are no NaNs
+for i = 1:size(R,2)
+	for j = 1:size(R,3)
+		if any(isnan(R(:,i,j)))
+			disp('NaNs detected in RT matrix...attempting to fix')
+		end
+
+		fix_this = isnan(R(:,i,j));
+		R(fix_this,i,j) = interp1(find(~cfix_this),R(~fix_this,i,j),find(fix_this),'spline');
+
+		fix_this = isnan(T(:,i,j));
+		T(fix_this,i,j) = interp1(find(~fix_this),T(~fix_this,i,j),find(fix_this),'spline');
+
+	end
+end
+
 save([geno_name,'.rtheta'],'R','T')

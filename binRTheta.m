@@ -65,13 +65,18 @@ for i = 1:n_flies
 		X = zeros(length(R_bin_edges)+size(GK,1),length(theta_bin_edges)+size(GK,2));
 
 
+
+
 		for l = 1:length(rho)
 			r_a = rho(l) - GK_width_r+1;
+
 			r_z = rho(l) + GK_width_r+1;
+
 			theta_a = theta(l) - GK_width_theta+1;
 			theta_z = theta(l) + GK_width_theta+1;
 			X(r_a:r_z,theta_a:theta_z) = X(r_a:r_z,theta_a:theta_z) + GK;
 		end
+
 
 
 		% cut in R dimension, wrap in theta dimension

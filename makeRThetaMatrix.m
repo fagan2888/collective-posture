@@ -40,6 +40,8 @@ parfor j = 1:n_frames
 
 		% convert to polar
 		[theta,rho] = cart2pol(other_x,other_y);
+
+
 		theta = mod(theta,2*pi);
 
 		theta(rho==0) = [];
@@ -52,7 +54,6 @@ parfor j = 1:n_frames
 
 end
 
-
 % make sure there are no NaNs
 for i = 1:size(R,2)
 	for j = 1:size(R,3)
@@ -61,12 +62,19 @@ for i = 1:size(R,2)
 		end
 
 		fix_this = isnan(R(:,i,j));
-		R(fix_this,i,j) = interp1(find(~cfix_this),R(~fix_this,i,j),find(fix_this),'spline');
+		R(fix_this,i,j) = interp1(find(~fix_this),R(~fix_this,i,j),find(fix_this),'linear','extrap');
 
 		fix_this = isnan(T(:,i,j));
-		T(fix_this,i,j) = interp1(find(~fix_this),T(~fix_this,i,j),find(fix_this),'spline');
+		T(fix_this,i,j) = interp1(find(~fix_this),T(~fix_this,i,j),find(fix_this),'linear','extrap');
 
 	end
 end
+
+% check that interpolation worked
+assert(any(isnan(R(:))) == 0,'NaNs still exist in R')
+assert(any(isinf(R(:))) == 0,'Infs still exist in R')
+assert(any(isnan(T(:))) == 0,'NaNs still exist in T')
+assert(any(isinf(T(:))) == 0,'Infs still exist in T')
+assert(min(R(:)) > 0 ,'At least one radius is negative')
 
 save([geno_name,'.rtheta'],'R','T')

@@ -16,6 +16,7 @@ tsne_data.images = images;
 tsne_data.all_geno = all_geno;
 tsne_data.all_frames = all_frames;
 tsne_data.all_fly_id = all_fly_id;
+tsne_data.geno_names = geno_names;
 
 load('saved_colormaps.mat')
 tsne_data.cc = cc;

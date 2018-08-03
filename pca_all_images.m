@@ -14,7 +14,7 @@ all_geno = 0*(1:length(all_fly_id)) + 1;
 all_geno = all_geno(:);
 
 for i = 2:length(all_files)
-	textbar(2,length(all_files))
+	textbar(i,length(all_files))
 	load(all_files(i).name,'-mat')
 
 	images = vertcat(images, all_images);
@@ -93,7 +93,7 @@ axis tight
 axis off
 prettyFig();
 
-
+return
 
 
 % plot and color by genotype

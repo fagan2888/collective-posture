@@ -80,9 +80,12 @@ for i = 1:length(geno_names)
 	if any(strfind(geno_names{i},'ctrax'))
 		% it's a fly
 		R = R/2; % assuming body length of 2 mm
-	else
+	elseif any(strfind(geno_names{i},'Sunbleak'))
 		% fish size is 40 mm
 		R = R/40;
+	else
+		% guppies
+		R = R/30;
 	end
 
 

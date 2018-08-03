@@ -39,9 +39,6 @@ n_neighbours = zeros(n_images,n_flies);
 
 for i = 1:n_flies
 
-
-	textbar(i,n_flies)
-
 	for j = 1:n_images
 
 

@@ -13,8 +13,8 @@ options.theta_n_bins = 20;
 options.sigma_r = 5; % in units of high-res matrix
 options.sigma_theta = 5;
 options.trx_folder = '~/Desktop/fly_trx';
-options.t_bin_size = 500; % frames
-options.t_bin_step = 500; % frames
+options.t_bin_size = 1e3; % frames
+options.t_bin_step = 1e3; % frames
 options.recompute_ego = false;
 
 if nargout && ~nargin 
@@ -47,58 +47,13 @@ end
 
 
 
-
 geno_names = dir([options.trx_folder filesep '*.mat']);
 geno_names = {geno_names.name};
 
 
-for i = 1:length(geno_names)
+parfor i = 1:length(geno_names)
 
-	disp([options.trx_folder filesep geno_names{i}])
-
-	if exist([geno_names{i} '.rtheta'],'file') ~= 2
-
-		
-		load([options.trx_folder filesep geno_names{i}],'trx')
-		
-		traj_lengths = cellfun(@length,{trx.x});
-		rm_this = traj_lengths ~= mode(traj_lengths);
-
-		trx(rm_this) = [];
-		x = vertcat(trx.x_mm);
-		y = vertcat(trx.y_mm);
-		all_theta = vertcat(trx.theta);
-
-		makeRThetaMatrix(x,y,all_theta,geno_names{i},options);
-	else
-		disp('R-theta representation exists. loading that...')
-		
-	end
-
-	load([geno_names{i} '.rtheta'],'-mat')
-
-	if any(strfind(geno_names{i},'ctrax'))
-		% it's a fly
-		R = R/2; % assuming body length of 2 mm
-	elseif any(strfind(geno_names{i},'Sunbleak'))
-		% fish size is 40 mm
-		R = R/40;
-	else
-		% guppies
-		R = R/30;
-	end
-
-
-	if exist([geno_names{i} '.ego'],'file') ~= 2 
-
-		binRTheta(R,T,geno_names{i},options);
-	else
-		if options.recompute_ego
-			binRTheta(R,T,geno_names{i},options);
-		else
-			disp('.ego file exists, not recomputing')
-		end
-	end
+	parallelWorker(geno_names{i},options)
 
 end
 

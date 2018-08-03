@@ -108,11 +108,7 @@ axis square
 c = lines(100);
 for i = 1:max(labels)
 
-	if length(all_files(i).name) > 20
-		t.String = [mat2str(i) '  ' all_files(i).name(1:20)];
-	else
-		t.String = [mat2str(i) '  ' all_files(i).name()];
-	end
+	t.String = [mat2str(i) flstring(all_files(i).name,20)];
 
 	h.XData = R(1,labels==i);
 	h.YData = R(2,labels==i);

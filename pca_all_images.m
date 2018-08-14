@@ -120,20 +120,18 @@ return
 
 % show some genotypes
 geno_names = {all_files.name};
-show_these = [1 8 11 13 16 18 19 21 26 28 42 56];
+show_these = [1 2 81 71 79 66 3 7 9 12 14 25];
 
-figure('outerposition',[0 0 1401 800],'PaperUnits','points','PaperSize',[1401 800]); hold on
+figure('outerposition',[0 0 1301 800],'PaperUnits','points','PaperSize',[1301 800]); hold on
 c = lines;
 for i = 12:-1:1
 	subplot(3,4,i); hold on
 	plot(R(1,1:10:end),R(2,1:10:end),'.','Color',[1 1 1]*.6,'MarkerSize',5)
 	this_geno = show_these(i);
 	plot(R(1,all_geno == this_geno),R(2,all_geno == this_geno),'.','Color',c(i,:),'MarkerSize',20)
-	if i > 1
-		title([geno_names{this_geno}(1:20)],'interpreter','none')
-	else
-		title('Fish!')
-	end
+
+	title(flstring(geno_names{this_geno},20),'interpreter','none')
+	axis square
 	axis off
 end
 
